@@ -1,5 +1,4 @@
 import { Handler, Response } from "express"
-import { request } from "http"
 import { AuthenticatedRequest } from "../types"
 
 export const create: Handler = async (request: AuthenticatedRequest, response: Response) => {
