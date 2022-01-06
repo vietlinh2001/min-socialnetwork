@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
 import Like from "./Like";
 import TimestampedEntity from "./TimestampedEntity";
 import { User } from "./User";
@@ -17,4 +17,7 @@ export default class Post extends TimestampedEntity {
 
   @OneToMany(() => Like, like => like.post)
   likes: Like[]
+
+  @UpdateDateColumn()
+  updatedAt: Date
 }
