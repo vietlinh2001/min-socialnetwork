@@ -1,4 +1,5 @@
 import * as UserController from './controllers/UserController'
+import * as PostController from './controllers/PostController'
 import { Router }          from "express";
 import { body }            from "express-validator";
 import validate            from "./middlewares/validate";
@@ -13,5 +14,6 @@ export default (router: Router) => {
   router.use(requireAuthenticated)
 
   router.get('/user/me', controller(UserController.profile))
+  router.put('/post/:id', controller(PostController.update))
 }
 
