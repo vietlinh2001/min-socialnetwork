@@ -23,6 +23,11 @@ export default (router: Router) => {
         controller(UserController.profile)
     )
 
+    router.get(
+        '/post/:id',
+        controller(PostController.detail)
+    )
+
     router.put(
         '/post/:id',
         postForm,
