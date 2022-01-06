@@ -15,13 +15,13 @@ export default (router: Router) => {
 
   router.get('/user/me', controller(UserController.profile))
 
-  router.post('/like',validate(
+  router.post('/like', validate(
     body("postId").isInt({gt: 0})
-  ),controller(LikeController.create))
+  ), controller(LikeController.create))
 
-  router.delete("/like/:id",validate(
+  router.delete("/like/:id", validate(
    param("id").isInt({gt: 0})
-  ),controller(LikeController.unLike))
+  ), controller(LikeController.unLike))
 }
 
 
