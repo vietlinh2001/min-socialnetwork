@@ -15,5 +15,8 @@ export default (router: Router) => {
 
   router.get('/user/me', controller(UserController.profile))
   router.put('/post/:id', controller(PostController.update))
+
+  router.get('/post', controller(PostController.search))
+
 }
 
