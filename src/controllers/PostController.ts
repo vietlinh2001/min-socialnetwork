@@ -49,5 +49,8 @@ export const update = async (request: AuthenticatedRequest, response: Response) 
 }
 
 export const remove = async (request: AuthenticatedRequest, response: Response) => {
-    
+    const postRepository = getRepository(Post)
+    const post = await postRepository.findOne(request.params.id)
+
+    await  postRepository.remove(post)
 }

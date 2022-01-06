@@ -19,5 +19,7 @@ export default (router: Router) => {
 
   router.get('/post', controller(PostController.search))
 
+  router.delete('/post/:id', controller(PostController.remove))
+
 }
 
