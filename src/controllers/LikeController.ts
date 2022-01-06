@@ -9,7 +9,7 @@ export const create: Handler = async (request: AuthenticatedRequest, response) =
     const postRepository = getRepository(Post)
     const { postId }     = request.body
 
-    const likedPost = await postRepository.findOneOrFail(postId)
+    const likedPost = await postRepository.findOne(postId)
     const like      = new Like()
 
     like.post    = likedPost
@@ -17,7 +17,7 @@ export const create: Handler = async (request: AuthenticatedRequest, response) =
 
     await likeRepository.save(like)
 
-    response.status(201).json({
+    return response.status(201).json({
         like
     })
 }
@@ -28,7 +28,7 @@ export const unLike: Handler = async (request: AuthenticatedRequest, response) =
 
     await likeRepository.softDelete(request.params.id)
 
-    response.json({
+    return response.json({
         like
     })
 }

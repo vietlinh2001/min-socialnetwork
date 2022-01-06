@@ -5,6 +5,10 @@ import * as LikeController from './controllers/LikeController'
 import {body, param} from "express-validator";
 import validate from "./middlewares/validate";
 import requireAuthenticated from './middlewares/requireAuthenticate';
+import postForm from './form/postForm';
+import { getRepository } from 'typeorm';
+import Post from './entity/Post';
+import likeForm from './form/likeForm';
 
 const controller = (method) => (request, response, next) => {
     method(request, response, next).catch(error => next(error))
@@ -14,26 +18,41 @@ export default (router: Router) => {
 
     router.use(requireAuthenticated)
 
-    router.get('/user/me', controller(UserController.profile))
+    router.get(
+        '/user/me',
+        controller(UserController.profile)
+    )
 
-    router.put('/post/:id', controller(PostController.update))
+    router.put(
+        '/post/:id',
+        postForm,
+        controller(PostController.update)
+    )
+    
+    router.post(
+        '/post',
+        postForm,  
+        controller(PostController.create)
+    )
 
-    router.post('/post', controller(PostController.create))
+    router.get(
+        '/post',
+        controller(PostController.search)
+    )
 
-    router.get('/post', controller(PostController.search))
-
-    router.delete('/post/:id', controller(PostController.remove))
+    router.delete(
+        '/post/:id',
+        controller(PostController.remove)
+    )
 
     router.post(
         '/like',
-        validate(body("postId").isInt({gt: 0})),
+        likeForm,
         controller(LikeController.create)
     )
 
     router.delete(
         "/like/:id",
-        validate(param("id").isInt({gt: 0})),
         controller(LikeController.unLike)
     )
 }
-
