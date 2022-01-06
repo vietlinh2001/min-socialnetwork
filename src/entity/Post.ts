@@ -17,10 +17,4 @@ export default class Post extends TimestampedEntity {
 
   @OneToMany(() => Like, like => like.post)
   likes: Like[]
-
-  @UpdateDateColumn()
-  updatedAt: Date
-
-  @DeleteDateColumn()
-  deletedAt: Date
 }
