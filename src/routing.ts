@@ -17,10 +17,5 @@ export default (router: Router) => {
 
   router.post('/post',controller(PostController.create))
 
-  router.put('/update/:id',controller(PostController.update))
-
-  router.delete('/delete/:id',controller(PostController.remove))
-
-  router.get('/seach')
 }
 
