@@ -12,6 +12,7 @@ export default (router: Router) => {
   router.use(requireAuthenticated)
 
   router.get('/user/me', controller(UserController.profile))
+  
   router.put('/post/:id', controller(PostController.update))
 
   router.post('/post',controller(PostController.create))
