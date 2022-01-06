@@ -10,6 +10,9 @@ export class User extends TimestampedEntity {
   email: string
 
   @Column()
+  password: string
+
+  @Column()
   name: string
 
   @OneToMany(() => Post, post => post.author)
