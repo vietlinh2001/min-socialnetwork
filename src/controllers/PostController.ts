@@ -10,7 +10,9 @@ export const create: Handler = async (request: AuthenticatedRequest, response: R
     const post = new Post()
     post.title = request.body.title
     post.content = request.body.content
+    post.author = request.user
     post.likes = []
+    
     await postRepository.save(post)
 
     return response.json({
