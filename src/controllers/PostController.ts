@@ -55,4 +55,8 @@ export const remove = async (request: AuthenticatedRequest, response: Response) 
     const post = await postRepository.findOne(request.params.id)
 
     await  postRepository.remove(post)
+
+    return response.status(200).json({
+        post
+    })
 }
