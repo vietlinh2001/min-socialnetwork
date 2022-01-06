@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
+import {Column, DeleteDateColumn, Entity, ManyToOne, OneToMany, UpdateDateColumn} from "typeorm";
 import Like from "./Like";
 import TimestampedEntity from "./TimestampedEntity";
 import { User } from "./User";
@@ -20,4 +20,7 @@ export default class Post extends TimestampedEntity {
 
   @UpdateDateColumn()
   updatedAt: Date
+
+  @DeleteDateColumn()
+  deletedAt: Date
 }
