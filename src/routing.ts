@@ -17,5 +17,7 @@ export default (router: Router) => {
 
   router.post('/post',controller(PostController.create))
 
+  router.get('/post', controller(PostController.search))
+
 }
 
