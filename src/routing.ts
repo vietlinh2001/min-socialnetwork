@@ -1,4 +1,5 @@
 import * as UserController from './controllers/UserController'
+import * as PostController from './controllers/PostController'
 import { Router }          from "express";
 import { body }            from "express-validator";
 import validate            from "./middlewares/validate";
@@ -13,5 +14,13 @@ export default (router: Router) => {
   router.use(requireAuthenticated)
 
   router.get('/user/me', controller(UserController.profile))
+
+  router.post('/post',controller(PostController.create))
+
+  router.put('/update/:id',controller(PostController.update))
+
+  router.delete('/delete/:id',controller(PostController.remove))
+
+  router.get('/seach')
 }
 
