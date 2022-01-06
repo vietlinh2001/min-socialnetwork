@@ -6,14 +6,36 @@ import PostCollectionResource from "../resources/PostCollectionResource"
 import PostResource from "../resources/PostResource"
 import { AuthenticatedRequest } from "../types"
 import { paginiationLimit } from "../config"
+import Like from "../entity/Like"
+import LikeResource from "../resources/LikeResource"
 
 export const detail: Handler = async (request: AuthenticatedRequest, response: Response) => {
     const postRepository = getRepository(Post)
-    const post = await postRepository.findOneOrFail(request.params.id)
-    const postResource = new PostResource(post) 
+    const likeRepository = getRepository(Like)
 
+    const post = await postRepository.findOneOrFail(request.params.id)
+    const countOfLike = await likeRepository.count({
+        where: {
+            postId: post.id
+        }
+    })
+
+    const latest3Likes = await likeRepository.find({
+        where: {
+            postId: post.id
+        },
+        order: {
+            createdAt: 'DESC'
+        },
+        take: 3
+    })
+
+    const postResource = new PostResource(post)
+    
     return response.json({
-        post: postResource.toJson()
+        post: postResource.toJson(),
+        _countOfLike: countOfLike,
+        _latest3Likes: latest3Likes.map(like => new LikeResource(like).toJson())
     })
 }
 
@@ -55,7 +77,7 @@ export const search = async (request: AuthenticatedRequest, response: Response) 
 
     return response.json({
         posts: postCollection.toJson(),
-        meta: paginatedPosts.meta
+        _pagination: paginatedPosts.meta
     })
 }
 

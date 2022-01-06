@@ -2,6 +2,7 @@ import {Handler} from "express"
 import {getRepository} from "typeorm"
 import Like from "../entity/Like"
 import Post from "../entity/Post"
+import LikeResource from "../resources/LikeResource"
 import {AuthenticatedRequest} from "../types"
 
 export const create: Handler = async (request: AuthenticatedRequest, response) => {
@@ -18,7 +19,7 @@ export const create: Handler = async (request: AuthenticatedRequest, response) =
     await likeRepository.save(like)
 
     return response.status(201).json({
-        like
+        like: new LikeResource(like).toJson()
     })
 }
 
