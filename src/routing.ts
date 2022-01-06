@@ -20,7 +20,7 @@ export default (router: Router) => {
   ), controller(LikeController.create))
 
   router.delete("/like/:id", validate(
-   param("id").isInt({gt: 0})
+    param("id").isInt({gt: 0})
   ), controller(LikeController.unLike))
 }
 
