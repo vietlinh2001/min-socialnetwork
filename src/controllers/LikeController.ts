@@ -4,19 +4,19 @@ import Like from "../entity/Like"
 import Post from "../entity/Post"
 import LikeResource from "../resources/LikeResource"
 import {AuthenticatedRequest} from "../types"
+import NotificationService from "../services/NotificationService";
+import LikedPostNotification from "../notifications/LikedPostNotification";
+import PostService from "../services/PostService";
 
 export const create: Handler = async (request: AuthenticatedRequest, response) => {
-    const likeRepository = getRepository(Like)
     const postRepository = getRepository(Post)
-    const { postId }     = request.body
+    const notificationService: NotificationService = request.app.get('NotificationService')
+    const postService: PostService = request.app.get('PostService')
 
-    const likedPost = await postRepository.findOne(postId)
-    const like      = new Like()
+    const likedPost = await postRepository.findOne(request.body.postId)
 
-    like.post    = likedPost
-    like.creator = request.user
-
-    await likeRepository.save(like)
+    const like = await postService.like(request.user, likedPost)
+    await notificationService.send(new LikedPostNotification(like))
 
     return response.status(201).json({
         like: new LikeResource(like).toJson()

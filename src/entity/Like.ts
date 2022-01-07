@@ -8,10 +8,8 @@ export default class Like extends TimestampedEntity {
     
   @ManyToOne(() => User, user => user.likes, { eager: true })
   creator: User
-  
+
   @ManyToOne(() => Post, post => post.likes)
   post: Post
 
-  @Column()
-  postId: number
 }

@@ -9,6 +9,7 @@ import postForm from './form/postForm';
 import { getRepository } from 'typeorm';
 import Post from './entity/Post';
 import likeForm from './form/likeForm';
+import * as NotificationController from './controllers/NotificationController'
 
 const controller = (method) => (request, response, next) => {
     method(request, response, next).catch(error => next(error))
@@ -59,5 +60,10 @@ export default (router: Router) => {
     router.delete(
         "/like/:id",
         controller(LikeController.unLike)
+    )
+
+    router.get(
+        '/notification',
+        controller(NotificationController.show)
     )
 }

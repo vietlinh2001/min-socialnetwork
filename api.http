@@ -1,7 +1,7 @@
-DELETE http://localhost:3000/post/2
+POST http://localhost:3000/post
 Content-Type: application/json
 
 {
-  "name": "Rikky",
-  "email": "rikky@sphinx-software.com"
+  "title": "KISSaaa4",
+  "content": "a  very cold -101111111111"
 }
