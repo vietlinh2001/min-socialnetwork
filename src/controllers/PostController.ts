@@ -1,13 +1,14 @@
-import { Handler, Response } from "express"
-import { IPaginationOptions, paginate } from "nestjs-typeorm-paginate"
-import {getRepository } from "typeorm"
+import {Handler, Response} from "express"
+import {getRepository} from "typeorm"
 import Post from "../entity/Post"
 import PostCollectionResource from "../resources/PostCollectionResource"
 import PostResource from "../resources/PostResource"
-import { AuthenticatedRequest } from "../types"
-import { paginiationLimit } from "../config"
+import {AuthenticatedRequest, Condition} from "../types"
 import Like from "../entity/Like"
 import LikeResource from "../resources/LikeResource"
+import PostService from "../services/PostService";
+import SearchByContentCondition from "../SearchByContentCondition";
+import SearchByTitleCondition from "../SearchByTitleCondition";
 
 export const detail: Handler = async (request: AuthenticatedRequest, response: Response) => {
     const postRepository = getRepository(Post)
@@ -31,7 +32,7 @@ export const detail: Handler = async (request: AuthenticatedRequest, response: R
     })
 
     const postResource = new PostResource(post)
-    
+
     return response.json({
         post: postResource.toJson(),
         _countOfLike: countOfLike,
@@ -40,17 +41,10 @@ export const detail: Handler = async (request: AuthenticatedRequest, response: R
 }
 
 export const create: Handler = async (request: AuthenticatedRequest, response: Response) => {
-    
-    const postRepository = getRepository(Post)
+    const postService: PostService = request.app.get('PostService')
 
-    const post = new Post()
-    post.title = request.body.title
-    post.content = request.body.content
-    post.author = request.user
-    post.likes = []
-    
-    await postRepository.save(post)
-    const postResource = new PostResource(post)
+    const postResource = new PostResource(await postService
+        .compose(request.user, request.body.title, request.body.content))
 
     return response.json({
         post: postResource.toJson()
@@ -58,21 +52,17 @@ export const create: Handler = async (request: AuthenticatedRequest, response: R
 }
 
 export const search = async (request: AuthenticatedRequest, response: Response) => {
+    const postService: PostService = request.app.get('PostService')
+    const {keyword, by, page} = request.query
+    const condition: Condition = (by === 'title') ?
+        new SearchByTitleCondition(keyword as string) :
+        new SearchByContentCondition(keyword as string)
 
-    const postRepository = getRepository(Post)
-    const query = postRepository.createQueryBuilder('post')
-        .leftJoinAndSelect('post.author', 'user')
+    const paginatedPosts = await postService.search(
+        condition,
+        parseInt(page as string)
+    )
 
-    if (request.query.key) {
-        query.where('post.title like :title',
-            {title: `%${request.query.key}%`})
-    }
-
-    const paginatedPosts = await paginate<Post>(query, {
-        page: request.query.page as string,
-        limit: paginiationLimit
-    })
-    
     const postCollection = new PostCollectionResource(paginatedPosts.items)
 
     return response.json({
@@ -84,25 +74,26 @@ export const search = async (request: AuthenticatedRequest, response: Response) 
 export const update = async (request: AuthenticatedRequest, response: Response) => {
     const postRepository = getRepository(Post)
     const post = await postRepository.findOneOrFail(request.params.id)
-    
+
     post.title = request.body.title
     post.content = request.body.content
 
     await postRepository.save(post)
-    
+
     return response.json({
-        post
+        post: new PostResource(post).toJson()
     })
-    
+
 }
 
 export const remove = async (request: AuthenticatedRequest, response: Response) => {
     const postRepository = getRepository(Post)
     const post = await postRepository.findOneOrFail(request.params.id)
 
-    await  postRepository.softRemove(post)
+    await postRepository.softRemove(post)
 
     return response.status(200).json({
-        post
+        post: new PostResource(post).toJson()
     })
 }
+
