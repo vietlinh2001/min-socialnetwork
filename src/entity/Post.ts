@@ -2,9 +2,10 @@ import {Column, DeleteDateColumn, Entity, ManyToOne, OneToMany, UpdateDateColumn
 import Like from "./Like";
 import TimestampedEntity from "./TimestampedEntity";
 import { User } from "./User";
+import {BelongToUser} from "../BelongToUser";
 
 @Entity()
-export default class Post extends TimestampedEntity {
+export default class Post extends TimestampedEntity implements BelongToUser {
  
   @Column()
   title: String
@@ -17,4 +18,8 @@ export default class Post extends TimestampedEntity {
 
   @OneToMany(() => Like, like => like.post)
   likes: Like[]
+
+  isOwnedBy(user: User) {
+    return this.author.id === user.id
+  }
 }

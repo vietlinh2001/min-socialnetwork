@@ -1,15 +1,18 @@
 import * as UserController from './controllers/UserController'
 import * as PostController from './controllers/PostController'
-import {Router} from "express";
+import express, {Router} from "express";
 import * as LikeController from './controllers/LikeController'
-import {body, param} from "express-validator";
-import validate from "./middlewares/validate";
 import requireAuthenticated from './middlewares/requireAuthenticate';
 import postForm from './form/postForm';
-import { getRepository } from 'typeorm';
 import Post from './entity/Post';
 import likeForm from './form/likeForm';
 import * as NotificationController from './controllers/NotificationController'
+import bindEntity from "./middlewares/bindEntity";
+import Like from "./entity/Like";
+import mustBeOwner from "./middlewares/mustBeOwner";
+import * as LoginController from './controllers/LoginController'
+import validate from "./middlewares/validate";
+import {body} from "express-validator";
 
 const controller = (method) => (request, response, next) => {
     method(request, response, next).catch(error => next(error))
@@ -17,53 +20,76 @@ const controller = (method) => (request, response, next) => {
 
 export default (router: Router) => {
 
-    router.use(requireAuthenticated)
+    router.post(
+        '/login',
+        validate(
+            body('email').isEmail(),
+            body('password').isString()
+        ),
+        controller(LoginController.login)
+    )
 
-    router.get(
+    const protectedRouter = express.Router()
+
+    router.use('/api', protectedRouter)
+
+    protectedRouter.use(requireAuthenticated)
+
+    protectedRouter.get(
         '/user/me',
         controller(UserController.profile)
     )
 
-    router.get(
+    protectedRouter.get(
         '/post/:id',
+        bindEntity(Post),
+        mustBeOwner('post', 'view'),
         controller(PostController.detail)
     )
 
-    router.put(
+    protectedRouter.put(
         '/post/:id',
         postForm,
+        bindEntity(Post),
+        mustBeOwner('post', 'update'),
         controller(PostController.update)
     )
-    
-    router.post(
+
+    protectedRouter.post(
         '/post',
-        postForm,  
+        postForm,
         controller(PostController.create)
     )
 
-    router.get(
+    protectedRouter.get(
         '/post',
         controller(PostController.search)
     )
 
-    router.delete(
+    protectedRouter.delete(
         '/post/:id',
+        bindEntity(Post),
+        mustBeOwner('post', 'deletes'),
         controller(PostController.remove)
     )
 
-    router.post(
+    protectedRouter.post(
         '/like',
         likeForm,
         controller(LikeController.create)
     )
 
-    router.delete(
+    protectedRouter.delete(
         "/like/:id",
+        bindEntity(Like),
+        mustBeOwner('like', 'unlike'),
         controller(LikeController.unLike)
     )
 
-    router.get(
+    protectedRouter.get(
         '/notification',
         controller(NotificationController.show)
     )
+
+
 }

@@ -1,14 +1,15 @@
-import {Handler} from "express"
+import {Handler, Request} from "express"
 import {getRepository} from "typeorm"
 import Like from "../entity/Like"
 import Post from "../entity/Post"
 import LikeResource from "../resources/LikeResource"
-import {AuthenticatedRequest} from "../types"
+import {AuthenticatedRequest, EntityBoundRequest} from "../types"
 import NotificationService from "../services/NotificationService";
 import LikedPostNotification from "../notifications/LikedPostNotification";
 import PostService from "../services/PostService";
+import PermissionDenied from "../PermissionDenied";
 
-export const create: Handler = async (request: AuthenticatedRequest, response) => {
+export const create: Handler = async (request: Request & AuthenticatedRequest, response) => {
     const postRepository = getRepository(Post)
     const notificationService: NotificationService = request.app.get('NotificationService')
     const postService: PostService = request.app.get('PostService')
@@ -23,9 +24,9 @@ export const create: Handler = async (request: AuthenticatedRequest, response) =
     })
 }
 
-export const unLike: Handler = async (request: AuthenticatedRequest, response) => {
+export const unLike: Handler = async (request: Request & EntityBoundRequest<Post> & AuthenticatedRequest, response) => {
     const likeRepository = getRepository(Like)
-    const like = await likeRepository.findOneOrFail(request.params.id)
+    const like = request.entity
 
     await likeRepository.softDelete(request.params.id)
 

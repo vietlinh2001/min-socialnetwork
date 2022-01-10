@@ -3,7 +3,6 @@ import connectToDatabase   from "./middlewares/connectToDatabase";
 import routing             from "./routing";
 import morgan              from 'morgan'
 import handleError         from './middlewares/handleError';
-import bodyParser          from "body-parser";
 import NotificationService from "./services/NotificationService";
 import PostService from "./services/PostService";
 
@@ -17,8 +16,8 @@ api.set('PostService', new PostService())
 
 api.use(morgan(process.env.LOG_TYPE || 'common'))
 api.use(connectToDatabase(api))
-api.use(bodyParser.json())
-api.use(bodyParser.urlencoded())
+api.use(express.json())
+api.use(express.urlencoded({ extended: true }))
 api.use(router)
 api.use(handleError)
 
