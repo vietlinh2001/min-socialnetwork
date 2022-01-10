@@ -1,20 +1,19 @@
-import {Handler, Response} from "express"
+import {Handler, Request, Response} from "express"
 import {getRepository} from "typeorm"
 import Post from "../entity/Post"
 import PostCollectionResource from "../resources/PostCollectionResource"
 import PostResource from "../resources/PostResource"
-import {AuthenticatedRequest, Condition} from "../types"
+import {AuthenticatedRequest, Condition, EntityBoundRequest} from "../types"
 import Like from "../entity/Like"
 import LikeResource from "../resources/LikeResource"
 import PostService from "../services/PostService";
 import SearchByContentCondition from "../SearchByContentCondition";
 import SearchByTitleCondition from "../SearchByTitleCondition";
 
-export const detail: Handler = async (request: AuthenticatedRequest, response: Response) => {
-    const postRepository = getRepository(Post)
+export const detail: Handler = async (request: Request & EntityBoundRequest<Post> & AuthenticatedRequest, response: Response) => {
     const likeRepository = getRepository(Like)
+    const post = request.entity
 
-    const post = await postRepository.findOneOrFail(request.params.id)
     const countOfLike = await likeRepository.count({
         where: {
             postId: post.id
@@ -23,7 +22,7 @@ export const detail: Handler = async (request: AuthenticatedRequest, response: R
 
     const latest3Likes = await likeRepository.find({
         where: {
-            postId: post.id
+            postId: request.entity.id
         },
         order: {
             createdAt: 'DESC'
@@ -40,7 +39,7 @@ export const detail: Handler = async (request: AuthenticatedRequest, response: R
     })
 }
 
-export const create: Handler = async (request: AuthenticatedRequest, response: Response) => {
+export const create: Handler = async (request: Request & AuthenticatedRequest, response: Response) => {
     const postService: PostService = request.app.get('PostService')
 
     const postResource = new PostResource(await postService
@@ -51,7 +50,7 @@ export const create: Handler = async (request: AuthenticatedRequest, response: R
     })
 }
 
-export const search = async (request: AuthenticatedRequest, response: Response) => {
+export const search = async (request: Request & AuthenticatedRequest, response: Response) => {
     const postService: PostService = request.app.get('PostService')
     const {keyword, by, page} = request.query
     const condition: Condition = (by === 'title') ?
@@ -71,9 +70,9 @@ export const search = async (request: AuthenticatedRequest, response: Response) 
     })
 }
 
-export const update = async (request: AuthenticatedRequest, response: Response) => {
+export const update = async (request: Request & EntityBoundRequest<Post> & AuthenticatedRequest, response: Response) => {
     const postRepository = getRepository(Post)
-    const post = await postRepository.findOneOrFail(request.params.id)
+    const post = request.entity
 
     post.title = request.body.title
     post.content = request.body.content
@@ -86,9 +85,9 @@ export const update = async (request: AuthenticatedRequest, response: Response) 
 
 }
 
-export const remove = async (request: AuthenticatedRequest, response: Response) => {
+export const remove = async (request: Request & EntityBoundRequest<Post> & AuthenticatedRequest, response: Response) => {
     const postRepository = getRepository(Post)
-    const post = await postRepository.findOneOrFail(request.params.id)
+    const post = request.entity
 
     await postRepository.softRemove(post)
 

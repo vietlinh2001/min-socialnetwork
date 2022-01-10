@@ -1,10 +1,9 @@
-import { Handler } from "express";
-import { User } from "../entity/User";
+import {Handler, Request} from "express";
 import UserResource from "../resources/UserResource";
 import { AuthenticatedRequest } from "../types";
 
 
-export const profile: Handler = async (request: AuthenticatedRequest, response) => {
+export const profile: Handler = async (request: Request & AuthenticatedRequest, response) => {
 
   const userResource = new UserResource(request.user)
 

@@ -1,11 +1,11 @@
-import { Handler } from "express";
+import {Handler, Request} from "express";
 import {getRepository} from "typeorm";
 import Notification from "../entity/NotificationEntity";
 import {AuthenticatedRequest} from "../types";
 import {paginate} from "nestjs-typeorm-paginate";
 import { paginationLimit } from "../config"
 
-export const show: Handler = async (request: AuthenticatedRequest, response) => {
+export const show: Handler = async (request: Request & AuthenticatedRequest, response) => {
     const notificationRepository = getRepository(Notification)
 
     const query = notificationRepository

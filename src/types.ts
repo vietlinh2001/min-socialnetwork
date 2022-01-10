@@ -3,8 +3,12 @@ import { User } from "./entity/User";
 import {SelectQueryBuilder} from "typeorm";
 import Post from "./entity/Post";
 
-export type AuthenticatedRequest = Request & {
+export type AuthenticatedRequest = {
     user: User
+}
+
+export type EntityBoundRequest<T> = {
+    entity: T
 }
 
 export interface Notification<Payload> {

@@ -1,22 +1,24 @@
-import { Handler } from "express";
-import { getRepository } from "typeorm";
-import { User } from "../entity/User";
-import { AuthenticatedRequest } from "../types";
+import {Handler, Request} from "express";
+import {getRepository} from "typeorm";
+import {User} from "../entity/User";
+import {AuthenticatedRequest} from "../types";
+import jwt from 'jsonwebtoken'
 
-// TODO will use the real one in the future
-const requireAuthenticated: Handler = async (request: AuthenticatedRequest, response, next) => {
+const requireAuthenticated: Handler = async (request: Request & AuthenticatedRequest, response, next) => {
     const userRepository = getRepository(User)
-    const loggedInUser = await userRepository.findOne(process.env.DEV_FAKE_USER)
+    const token = (request.headers.authorization || '').replace('Bearer ', '')
 
-    if (!loggedInUser) {
-        return response.status(401).json({
-            error: "UnAuthenticated"
+    const privateKey = process.env.APP_KEY
+
+    try {
+        const { id } = jwt.verify(token, privateKey) as { id: number }
+        request.user = await userRepository.findOne(id)
+        return next()
+    } catch (error) {
+        return response.status(403).json({
+            error: 'UnAuthenticated'
         })
     }
-
-    request.user = loggedInUser
-
-    return next()
 }
 
 export default requireAuthenticated
